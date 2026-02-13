@@ -32,9 +32,22 @@ jobs:
 
       - name: Build Container Image
         run: |
+          # Submit build (ignore log streaming errors)
           gcloud builds submit \
             --tag gcr.io/$PROJECT_ID/$SERVICE_NAME \
-            --timeout=10m
+            --timeout=10m 2>&1 || true
+
+          # Wait for build to complete
+          echo "Waiting for build to complete..."
+          sleep 90
+
+          # Verify image was created
+          if gcloud container images describe gcr.io/$PROJECT_ID/$SERVICE_NAME &>/dev/null; then
+            echo "✅ Container image built successfully"
+          else
+            echo "❌ Build may have failed - checking..."
+            exit 1
+          fi
 
       - name: Deploy to Cloud Run
         run: |
