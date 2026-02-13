@@ -2,6 +2,7 @@
 """
 PDF Page Reorder Tool
 Streamlit app for reordering PDF pages - specifically for moving Unit Summary to front
+Deployed on Google Cloud Run
 """
 
 import streamlit as st
