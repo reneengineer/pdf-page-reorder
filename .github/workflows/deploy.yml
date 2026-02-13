@@ -20,18 +20,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Decode credentials
-        id: decode
-        run: |
-          echo "credentials=$(echo '${{ secrets.GCP_SA_KEY_BASE64 }}' | base64 -d)" >> $GITHUB_OUTPUT
-
-      - name: Google Cloud Auth
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ steps.decode.outputs.credentials }}
-
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authenticate to Google Cloud
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_SA_KEY_BASE64 }}
+        run: |
+          echo "$GCP_CREDENTIALS" | base64 -d > $HOME/gcp-key.json
+          gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
+          gcloud config set project $PROJECT_ID
 
       - name: Configure Docker to use gcloud
         run: |
